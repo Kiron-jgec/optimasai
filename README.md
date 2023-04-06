@@ -1,4 +1,16 @@
-# learn-vue3
+# For OptimaAI
+
+need json server for run this project , for install run
+
+```
+npm install -g json-server
+```
+
+### json server start
+
+```
+json-server --watch db.json
+```
 
 ## Project setup
 
@@ -27,7 +39,3 @@ npm run lint
 ### Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
-
-### json server start
-
-json-server --watch db.json
