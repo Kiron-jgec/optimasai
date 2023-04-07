@@ -1,12 +1,14 @@
 # For OptimaAI
 
-need json server for run this project , for install run
+need json server for run this project , for install json-server run
 
 ```
 npm install -g json-server
 ```
 
-### json server start
+use sudo for mac and linux users - See [Configuration Reference](https://www.npmjs.com/package/json-server?activeTab=readme)
+
+### start json server
 
 ```
 json-server --watch db.json
