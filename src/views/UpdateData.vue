@@ -1,9 +1,10 @@
 <template>
   <v-container class="fromContainer mt-8 mb-15 pa-4" v-if="!submitted">
-    <div class="text-h6 text-center text-green">Submit Form</div>
-
-    <v-form @submit.prevent="submit" class="">
+    <div class="text-h6 text-center text-green">Update Data</div>
+    <!-- // update form  -->
+    <v-form @submit.prevent="submit" ref="form">
       <v-container>
+        <!-- full name -->
         <div class="">Full Name*:</div>
         <v-text-field
           v-model="fullName"
@@ -15,7 +16,7 @@
           density="compact"
           :rules="fullNameRules"
         ></v-text-field>
-
+        <!-- contact number -->
         <div class="">Contact Number* :</div>
         <v-text-field
           v-model="contactNo"
@@ -27,7 +28,7 @@
           :rules="contactNoRules"
           type="number"
         ></v-text-field>
-
+        <!-- gender -->
         <div class="">Gender* :</div>
         <v-radio-group
           inline
@@ -43,7 +44,7 @@
             :value="item"
           ></v-radio>
         </v-radio-group>
-
+        <!-- skills -->
         <div class="">Skills* :</div>
         <div class="d-flex flex-wrap">
           <v-checkbox
@@ -64,7 +65,7 @@
         >
           {{ skillsRules }}
         </div>
-
+        <!-- image upload -->
         <div class="mt-2">Upload Image* :</div>
         <div class="text-center">
           <input
@@ -76,21 +77,12 @@
             ref="fileInput"
           />
         </div>
-
+        <!-- show image preview -->
         <div v-if="imageInput" class="lighten-4 text-center" elevation="1">
           <v-avatar color="grey-lighten-4" size="100">
             <v-img :src="imageInput.url" :alt="fullName"></v-img>
           </v-avatar>
 
-          <!-- <v-btn
-            icon
-            density="comfortable"
-            color="red"
-            variant="text"
-            @click="removeImage"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn> -->
           <div>
             <v-btn
               class=""
@@ -109,7 +101,7 @@
         >
           {{ imageError }}
         </div>
-
+        <!-- country -->
         <div class="text-body-1">Country* :</div>
         <v-select
           v-model="country"
@@ -119,7 +111,7 @@
           density="comfortable"
           variant="underlined"
         ></v-select>
-
+        <!-- // submit button -->
         <v-btn
           class="mt-4 py-5"
           type="submit"
@@ -128,12 +120,13 @@
           :loading="loading"
           :disabled="loading"
         >
-          submit
+          Update
         </v-btn>
       </v-container>
     </v-form>
   </v-container>
 
+  <!-- response snackbar -->
   <v-snackbar
     v-model="snackbar"
     timeout="2000"
@@ -156,6 +149,7 @@ import { useStore } from "vuex";
 export default {
   setup() {
     const store = useStore();
+    // form data
     const items = ref(["India", "Singapore", "Dubai", "USA"]);
     const fullName = ref("");
     const contactNo = ref("");
@@ -174,8 +168,10 @@ export default {
     const snackbarColor = ref("red");
     const snackbarMsg = ref(null);
     const successMsg = ref(null);
-    // const useFrom = useFromDataStore();
+    // form
+    const form = ref(null);
 
+    // form validation rules
     const fullNameRules = [
       (v) => !!v || "Name is required",
       (v) => (v && v.length >= 2) || "Name must be more than 2 characters",
@@ -189,14 +185,12 @@ export default {
 
     const genderRules = [(v) => !!v || "Gender is required"];
 
+    // methods
+
+    // image  preview and convert to base64
     const onFileChange = () => {
-      // console.log(e.target.files[0]);
       imageError.value = null;
       const file = document.querySelector("#file-input").files[0];
-      console.log(file);
-      // uploadImage.value = file;
-      console.log(file);
-
       const values = {
         name: file.name,
         type: file.type,
@@ -217,13 +211,24 @@ export default {
         console.log("Error: ", error);
       };
     };
+
+    // remove image
     const removeImage = () => {
       imageInput.value = null;
       imageError.value = null;
       uploadImage.value = null;
     };
 
+    // submit form
     const submit = async () => {
+      // return false if form is not valid
+      const { valid } = await form.value.validate();
+      if (!valid) {
+        // go to top of the page
+        window.scrollTo(0, 0);
+        return;
+      }
+
       let data = {
         fullName: fullName.value,
         contactNo: contactNo.value,
@@ -234,6 +239,7 @@ export default {
         id: window.location.pathname.split("/")[2],
       };
       loading.value = true;
+      // valid before submit
       if (imageInput.value === null || skills.value.length === 0) {
         if (imageInput.value === null) {
           imageError.value = "Please upload an image";
@@ -246,6 +252,7 @@ export default {
         return;
       }
 
+      // submit form
       store
         .dispatch("updateOneData", data)
         .then((res) => {
@@ -256,7 +263,7 @@ export default {
           snackbarMsg.value = store.state.successMsg;
           setTimeout(() => {
             window.location.href = "/data";
-          }, 1000);
+          }, 500);
         })
         .catch((err) => {
           snackbarMsg.value = err;
@@ -265,23 +272,10 @@ export default {
         });
     };
 
-    const fillAgain = () => {
-      submitted.value = false;
-      // reset form
-      fullName.value = "";
-      contactNo.value = "";
-      gender.value = "";
-      skills.value = [];
-      uploadImage.value = "";
-      imageInput.value = null;
-      country.value = "India";
-    };
-
     // get updated data
     store
       .dispatch("getOneData", window.location.pathname.split("/")[2])
       .then((res) => {
-        console.log(res, window.location.pathname.split("/")[2]);
         let image = {
           url: res.uploadImage,
         };
@@ -313,10 +307,11 @@ export default {
       contactNoRules,
       genderRules,
       skillsRules,
+      form,
       //image
       imageInput,
       imageError,
-      removeImage,
+
       // loading
       loading,
       // response
@@ -328,9 +323,8 @@ export default {
       snackbarColor,
       // methods
       onFileChange,
+      removeImage,
       submit,
-      fillAgain,
-      // handleReset,
     };
   },
 };

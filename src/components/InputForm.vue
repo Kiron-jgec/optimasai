@@ -1,9 +1,10 @@
 <template>
   <v-container class="fromContainer mt-8 mb-15 pa-4" v-if="!submitted">
     <div class="text-h6 text-center text-green">Submit Form</div>
-
-    <v-form @submit.prevent="submit" class="">
+    <!-- input form  -->
+    <v-form @submit.prevent="submit" class="" ref="form">
       <v-container>
+        <!-- full name -->
         <div class="">Full Name*:</div>
         <v-text-field
           v-model="fullName"
@@ -15,7 +16,7 @@
           density="compact"
           :rules="fullNameRules"
         ></v-text-field>
-
+        <!-- contact number -->
         <div class="">Contact Number* :</div>
         <v-text-field
           v-model="contactNo"
@@ -27,7 +28,7 @@
           :rules="contactNoRules"
           type="number"
         ></v-text-field>
-
+        <!-- Gender -->
         <div class="">Gender* :</div>
         <v-radio-group
           inline
@@ -43,7 +44,7 @@
             :value="item"
           ></v-radio>
         </v-radio-group>
-
+        <!-- Skills -->
         <div class="">Skills* :</div>
         <div class="d-flex flex-wrap">
           <v-checkbox
@@ -64,7 +65,7 @@
         >
           {{ skillsRules }}
         </div>
-
+        <!-- image upload  -->
         <div class="mt-2">Upload Image* :</div>
         <div class="text-center">
           <input
@@ -85,7 +86,7 @@
             <v-icon dark class="mr-2"> mdi-cloud-upload </v-icon> Upload Image
           </v-btn>
         </div>
-
+        <!-- preview image -->
         <v-table v-if="imageInput" class="mt-4" elevation="1">
           <tbody>
             <tr class="gray">
@@ -117,7 +118,7 @@
         >
           {{ imageError }}
         </div>
-
+        <!-- country -->
         <div class="text-body-1">Country* :</div>
         <v-select
           v-model="country"
@@ -141,6 +142,8 @@
       </v-container>
     </v-form>
   </v-container>
+
+  <!-- success message -->
   <v-container
     fluid
     class="mx-auto text-center mt-10 refill d-flex justify-center align-center"
@@ -154,6 +157,7 @@
       </v-btn>
     </div></v-container
   >
+  <!-- error message -->
   <v-snackbar
     v-model="snackbar"
     timeout="2000"
@@ -191,8 +195,10 @@ export default {
     const submitted = ref(false);
     const errorMsg = ref(null);
     const snackbar = ref(false);
-    // const useFrom = useFromDataStore();
+    // form
+    const form = ref(null);
 
+    // validation rules
     const fullNameRules = [
       (v) => !!v || "Name is required",
       (v) => (v && v.length >= 2) || "Name must be more than 2 characters",
@@ -203,17 +209,14 @@ export default {
       (v) => (v && v.length >= 10) || "Contact No must be in 10 digits",
       (v) => (v && v.length <= 10) || "Contact No must be in 10 digits",
     ];
-
     const genderRules = [(v) => !!v || "Gender is required"];
 
+    // methods
+
+    // preview image and convert to base64 string
     const onFileChange = () => {
-      // console.log(e.target.files[0]);
       imageError.value = null;
       const file = document.querySelector("#file-input").files[0];
-      console.log(file);
-      // uploadImage.value = file;
-      console.log(file);
-
       const values = {
         name: file.name,
         type: file.type,
@@ -234,13 +237,22 @@ export default {
         console.log("Error: ", error);
       };
     };
+    // remove image
     const removeImage = () => {
       imageInput.value = null;
       imageError.value = null;
       uploadImage.value = null;
     };
 
+    // submit form
     const submit = async () => {
+      // return false if form is not valid
+      const { valid } = await form.value.validate();
+      if (!valid) {
+        // go to top of the page
+        window.scrollTo(0, 0);
+        return;
+      }
       let data = {
         fullName: fullName.value,
         contactNo: contactNo.value,
@@ -261,7 +273,7 @@ export default {
         }
         return;
       }
-
+      // call action from
       store
         .dispatch("submitForm", data)
         .then((res) => {
@@ -275,14 +287,14 @@ export default {
           loading.value = false;
         });
     };
-
+    // reset form
     const fillAgain = () => {
       submitted.value = false;
-      // reset form
       fullName.value = "";
       contactNo.value = "";
       gender.value = "";
       skills.value = [];
+      skillsRules.value = null;
       uploadImage.value = "";
       imageInput.value = null;
       country.value = "India";
@@ -301,10 +313,12 @@ export default {
       contactNoRules,
       genderRules,
       skillsRules,
+      // form
+      form,
       //image
       imageInput,
       imageError,
-      removeImage,
+
       // loading
       loading,
       // response
@@ -313,6 +327,7 @@ export default {
       snackbar,
       // methods
       onFileChange,
+      removeImage,
       submit,
       fillAgain,
       // handleReset,

@@ -1,27 +1,3 @@
-<!-- <script setup></script>
-
-<template>
-  <div class="mx-auto text-center mt-5">
-    <h1>Counter</h1>
-    <p>
-      Current count: <strong>{{ counter.count }}</strong> -
-      <strong>
-        {{ counter.doubleCount }}
-      </strong>
-    </p>
-    <v-btn @click="counter.increment()" class="mt-2">Increment</v-btn>
-    <v-btn @click="counter.count--" class="ml-2 mt-2">Decrement-</v-btn>
-  </div>
-</template>
-
-<script setup>
-import { useCounterStore } from "@/store/CounterStore.js";
-
-let counter = useCounterStore();
-</script>
-
-<style></style> -->
-
 <template>
   <v-alert
     color="red"
@@ -38,7 +14,7 @@ let counter = useCounterStore();
   <v-container class="pa-10 red" v-if="allData.length > 0">
     <v-card class="pa-5 red mx-auto" max-width="1200px" :loading="loading">
       <v-card-title>All Data </v-card-title>
-
+      <!-- table for all data -->
       <v-table>
         <thead>
           <tr>
@@ -61,7 +37,7 @@ let counter = useCounterStore();
             <td>{{ item.fullName }}</td>
             <td class="text-center">{{ item.gender }}</td>
             <td class="text-center">{{ item.contactNo }}</td>
-            <td>
+            <td class="text-center">
               <v-chip
                 v-for="(skill, id) in item.skills"
                 :key="id"
@@ -99,6 +75,7 @@ let counter = useCounterStore();
       </v-table>
     </v-card>
   </v-container>
+  <!-- show if there are no data in the database -->
   <v-container
     fluid
     v-else
@@ -136,6 +113,8 @@ let counter = useCounterStore();
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- response snackbar -->
   <v-snackbar
     v-model="snackbar"
     timeout="2000"
@@ -153,13 +132,6 @@ let counter = useCounterStore();
   </v-snackbar>
 </template>
 
-<!-- <script setup>
-// import { useFromDataStore } from "../store/FormDataStore.js";
-
-// let allFromDatas = useFromDataStore();
-// allFromDatas.getallfromData();
-</script> -->
-
 <script setup>
 import { useStore } from "vuex";
 import { ref } from "vue";
@@ -167,13 +139,14 @@ import { ref } from "vue";
 const store = useStore();
 let allData = ref([]);
 let errormsg = ref(null);
+
 const loading = ref(true);
 const dialog = ref(false);
 const deleteId = ref(null);
 const snackbar = ref(false);
 const snackbarMsg = ref(null);
 const snackbarColor = ref(null);
-// const testItem = computed(() => store.state.count);
+// // get data for the first time
 store
   .dispatch("getAllFormData")
   .then((res) => {
@@ -201,9 +174,10 @@ const confirmDelete = () => {
       snackbarColor.value = "success";
       snackbar.value = true;
       snackbarMsg.value = "Data deleted successfully";
+      // reload the page after 500ms
       setTimeout(() => {
         window.location.reload();
-      }, 1000);
+      }, 500);
     })
     .catch((err) => {
       console.log(err);
@@ -213,13 +187,6 @@ const confirmDelete = () => {
       snackbarMsg.value = "Something went wrong";
     });
 };
-
-// const increment = () => {
-//   store.commit("increment");
-// };
-// const increment2 = () => {
-//   store.dispatch("increment2");
-// };
 </script>
 
 <style scoped>

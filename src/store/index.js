@@ -3,7 +3,6 @@ import axios from "axios";
 import config from "@/config";
 export default createStore({
   state: {
-    count: 5,
     errorMsg: "",
     successMsg: "",
     formSubmitted: false,
@@ -12,6 +11,7 @@ export default createStore({
   },
   mutations: {},
   actions: {
+    // submit form data
     async submitForm(context, payload) {
       try {
         let res = await axios.post(`${config.jsonServerUrl}/values`, payload);
@@ -25,6 +25,7 @@ export default createStore({
       }
     },
 
+    // get all form data
     async getAllFormData(context) {
       try {
         let res = await axios.get(`${config.jsonServerUrl}/values`);
@@ -38,6 +39,7 @@ export default createStore({
       }
     },
 
+    // get one form data
     async getOneData(context, id) {
       try {
         let res = await axios.get(`${config.jsonServerUrl}/values/${id}`);
@@ -51,6 +53,7 @@ export default createStore({
       }
     },
 
+    // update one form data
     async updateOneData(context, payload) {
       try {
         let res = await axios.put(
@@ -66,7 +69,7 @@ export default createStore({
         return "Something went wrong";
       }
     },
-
+    // delete one form data
     async deleteOneData(context, id) {
       try {
         let res = await axios.delete(`${config.jsonServerUrl}/values/${id}`);
