@@ -318,7 +318,6 @@ export default {
       //image
       imageInput,
       imageError,
-
       // loading
       loading,
       // response
